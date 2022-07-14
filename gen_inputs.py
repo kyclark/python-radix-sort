@@ -15,6 +15,7 @@ class Args(NamedTuple):
     """ Command-line arguments """
     num: int
     outfile: TextIO
+    max_val: int
 
 
 # --------------------------------------------------
@@ -32,6 +33,13 @@ def get_args() -> Args:
                         type=int,
                         default=1000)
 
+    parser.add_argument('-m',
+                        '--max',
+                        help='Maximum value',
+                        metavar='int',
+                        type=int,
+                        default=1000)
+
     parser.add_argument('-o',
                         '--outfile',
                         help='Output file',
@@ -41,7 +49,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.num, args.outfile)
+    return Args(args.num, args.outfile, args.max)
 
 
 # --------------------------------------------------
@@ -49,7 +57,7 @@ def main() -> None:
     """ Make a jazz noise here """
 
     args = get_args()
-    for num in (randint(0, 1_000_000) for _ in range(0, args.num)):
+    for num in (randint(0, args.max_val) for _ in range(0, args.num)):
         args.outfile.write(f'{num} ')
 
     args.outfile.write('\n')

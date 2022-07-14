@@ -30,7 +30,7 @@ smol:
 	./gen_inputs.py -n 100000 > 100K.txt
 
 1M:
-	./gen_inputs.py -n 1000000 > 1M.txt
+	./gen_inputs.py -m 1000000 -n 1000000 > 1M.txt
 
 bench: 1K 100K
 	./bench.sh
