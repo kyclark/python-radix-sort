@@ -3,6 +3,9 @@
 Author : Ken Youens-Clark <kyclark@gmail.com>
 Date   : 2022-07-13
 Purpose: Radix sort (LSD)
+
+This version leaves the inputs as integers.
+
 """
 
 import argparse
@@ -25,11 +28,18 @@ def get_args() -> Args:
         description='Radix sort (LSD)',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('vals',
+    parser.add_argument('-v',
+                        '--vals',
                         metavar='INT',
                         nargs='+',
                         type=int,
                         help='Input values')
+
+    parser.add_argument('-f',
+                        '--file',
+                        metavar='FILE',
+                        type=argparse.FileType('rt'),
+                        help='Input file containing values')
 
     parser.add_argument('-d',
                         '--debug',
@@ -37,6 +47,19 @@ def get_args() -> Args:
                         action='store_true')
 
     args = parser.parse_args()
+
+    if args.file and args.vals:
+        parser.error('Provide either --vals or --file')
+
+    if args.file:
+        vals = []
+        for line in args.file:
+            vals.extend(list(map(int, line.split())))
+
+        args.vals = vals
+
+    if not args.vals:
+        parser.error('No input values?')
 
     return Args(args.vals, args.debug)
 

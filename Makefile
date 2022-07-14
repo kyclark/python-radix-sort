@@ -9,3 +9,15 @@ test:
 
 test2:
 	python3 -m pytest -v radixsort2.py
+
+1K:
+	./gen_inputs.py > 1K.txt
+
+100K:
+	./gen_inputs.py -n 100000 > 100K.txt
+
+1M:
+	./gen_inputs.py -n 1000000 > 1M.txt
+
+bench: 1K 100K
+	./bench.sh

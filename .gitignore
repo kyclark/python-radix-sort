@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+1K.txt
+100K.txt
+1M.txt
