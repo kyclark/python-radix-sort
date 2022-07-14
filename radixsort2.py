@@ -53,16 +53,15 @@ def main() -> None:
 def radixsort(vals: List[int], debug: bool = False) -> List[int]:
     """ Radix sort """
 
-    # Convert to padded strings, find number of places/digits
-    vals = pad(vals)
-    places = len(vals[0])
+    # Find longest number of places in numbers (most-significant digit)
+    max_places = find_longest(vals)
 
     def warn(msg: str) -> None:
         if debug:
             print(msg, file=sys.stderr)
 
     # Start with least-significant digit (LSD)
-    for r in reversed(range(0, places)):
+    for r in range(0, max_places):
         warn(f'>>> r {r} {vals}')
 
         # Place each value into a bucket using the current radix position
@@ -77,40 +76,71 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
         vals = tmp
 
     # Turn values back to integers
-    return list(map(int, vals))
+    return vals
 
 
 # --------------------------------------------------
-def pad(vals: List[int]) -> List[str]:
-    """ Turn list of ints into left-padded strings """
+def find_longest(nums: List[int]) -> int:
+    """ Find longest number position in a list """
 
-    # Convert values to strings to find the longest
-    longest = max(map(len, list(map(str, vals))))
-
-    # Format the string versions left-padded with zeros
-    return list(map(lambda v: f'{v:0{longest}d}', vals))
+    return max(map(num_places, nums))
 
 
 # --------------------------------------------------
-def test_pad() -> None:
-    """ Test pad """
+def test_find_longest() -> None:
+    """ Test find_longest """
 
-    assert pad([5]) == ['5']
-    assert pad([5, 73]) == ['05', '73']
+    assert find_longest([1]) == 1
+    assert find_longest([12, 1]) == 2
+    assert find_longest([12, 123, 1]) == 3
 
-    vals = [170, 45, 75, 90, 2, 802, 2, 66]
-    assert pad(vals) == [
-        '170', '045', '075', '090', '002', '802', '002', '066'
-    ]
+
+# --------------------------------------------------
+def num_places(num: int) -> int:
+    """ Find number of places in a digit """
+
+    x = 0
+    while True:
+        x += 1
+        if num // 10**x == 0:
+            break
+
+    return x
+
+
+# --------------------------------------------------
+def test_num_places() -> None:
+    """ Test num_places """
+
+    assert num_places(9) == 1
+    assert num_places(99) == 2
+    assert num_places(999) == 3
+    assert num_places(9999) == 4
+
+
+# --------------------------------------------------
+def get_digit(number: int, pos: int) -> int:
+    """ Get a digit at a radix position """
+
+    return number // (10**pos) % 10
+
+
+# --------------------------------------------------
+def test_get_digit() -> None:
+    """ Test get_digit """
+
+    assert get_digit(103, 0) == 3
+    assert get_digit(103, 1) == 0
+    assert get_digit(103, 2) == 1
 
 
 # --------------------------------------------------
 def group(pos: int, vals: List[str]) -> Dict[str, List[str]]:
-    """ Group values by chars at a position """
+    """ Group values by radix position """
 
     groups = defaultdict(list)
     for val in vals:
-        groups[val[pos]].append(val)
+        groups[get_digit(val, pos)].append(val)
 
     return groups
 
@@ -119,28 +149,24 @@ def group(pos: int, vals: List[str]) -> Dict[str, List[str]]:
 def test_group() -> None:
     """ Test group """
 
-    vals = ['170', '045', '075', '090', '002', '802', '002', '066']
+    vals = [170, 45, 75, 90, 2, 802, 2, 66]
 
     assert group(0, vals) == {
-        '1': ['170'],
-        '0': ['045', '075', '090', '002', '002', '066'],
-        '8': ['802']
+        0: [170, 90],
+        5: [45, 75],
+        2: [2, 802, 2],
+        6: [66]
     }
 
     assert group(1, vals) == {
-        '7': ['170', '075'],
-        '4': ['045'],
-        '9': ['090'],
-        '0': ['002', '802', '002'],
-        '6': ['066']
+        7: [170, 75],
+        4: [45],
+        9: [90],
+        0: [2, 802, 2],
+        6: [66]
     }
 
-    assert group(2, vals) == {
-        '0': ['170', '090'],
-        '5': ['045', '075'],
-        '2': ['002', '802', '002'],
-        '6': ['066']
-    }
+    assert group(2, vals) == {1: [170], 0: [45, 75, 90, 2, 2, 66], 8: [802]}
 
 
 # --------------------------------------------------
