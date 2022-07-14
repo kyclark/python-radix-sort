@@ -13,6 +13,7 @@ import sys
 from collections import defaultdict
 from typing import Dict, List, NamedTuple
 
+GroupDict = Dict[int, List[int]]
 
 class Args(NamedTuple):
     """ Command-line arguments """
@@ -89,10 +90,10 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
 
         # Place each value into a bucket using the current radix position
         groups = group(r, vals)
-        warn(groups)
+        warn(f'{groups}')
 
         # Create a new list with the values of the sorted buckets
-        tmp = []
+        tmp: List[int] = []
         for key in mysort(list(groups.keys())):
             tmp.extend(groups[key])
 
@@ -158,7 +159,7 @@ def test_get_digit() -> None:
 
 
 # --------------------------------------------------
-def group(pos: int, vals: List[str]) -> Dict[str, List[str]]:
+def group(pos: int, vals: List[int]) -> GroupDict:
     """ Group values by radix position """
 
     groups = defaultdict(list)
@@ -201,7 +202,7 @@ def test_radixsort() -> None:
 
 
 # --------------------------------------------------
-def mysort(vals: List[str]) -> List[str]:
+def mysort(vals: List[int]) -> List[int]:
     """ An inefficient sorter """
 
     for i in range(0, len(vals) - 1):

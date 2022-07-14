@@ -52,7 +52,7 @@ def get_args() -> Args:
         parser.error('Provide either --vals or --file')
 
     if args.file:
-        vals = []
+        vals: List[int] = []
         for line in args.file:
             vals.extend(list(map(int, line.split())))
 
@@ -77,8 +77,8 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
     """ Radix sort """
 
     # Convert to padded strings, find number of places/digits
-    vals = pad(vals)
-    places = len(vals[0])
+    strs = pad(vals)
+    places = len(strs[0])
 
     def warn(msg: str) -> None:
         if debug:
@@ -86,21 +86,21 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
 
     # Start with least-significant digit (LSD)
     for r in reversed(range(0, places)):
-        warn(f'>>> r {r} {vals}')
+        warn(f'>>> r {r} {strs}')
 
         # Place each value into a bucket using the current radix position
-        groups = group(r, vals)
-        warn(groups)
+        groups = group(r, strs)
+        warn(f'{groups}')
 
         # Create a new list with the values of the sorted buckets
         tmp = []
         for key in mysort(list(groups.keys())):
             tmp.extend(groups[key])
 
-        vals = tmp
+        strs = tmp
 
     # Turn values back to integers
-    return list(map(int, vals))
+    return list(map(int, strs))
 
 
 # --------------------------------------------------
@@ -128,12 +128,12 @@ def test_pad() -> None:
 
 
 # --------------------------------------------------
-def group(pos: int, vals: List[str]) -> Dict[str, List[str]]:
+def group(pos: int, vals: List[str]) -> Dict[int, List[str]]:
     """ Group values by chars at a position """
 
     groups = defaultdict(list)
     for val in vals:
-        groups[val[pos]].append(val)
+        groups[int(val[pos])].append(val)
 
     return groups
 
@@ -145,24 +145,24 @@ def test_group() -> None:
     vals = ['170', '045', '075', '090', '002', '802', '002', '066']
 
     assert group(0, vals) == {
-        '1': ['170'],
-        '0': ['045', '075', '090', '002', '002', '066'],
-        '8': ['802']
+        1: ['170'],
+        0: ['045', '075', '090', '002', '002', '066'],
+        8: ['802']
     }
 
     assert group(1, vals) == {
-        '7': ['170', '075'],
-        '4': ['045'],
-        '9': ['090'],
-        '0': ['002', '802', '002'],
-        '6': ['066']
+        7: ['170', '075'],
+        4: ['045'],
+        9: ['090'],
+        0: ['002', '802', '002'],
+        6: ['066']
     }
 
     assert group(2, vals) == {
-        '0': ['170', '090'],
-        '5': ['045', '075'],
-        '2': ['002', '802', '002'],
-        '6': ['066']
+        0: ['170', '090'],
+        5: ['045', '075'],
+        2: ['002', '802', '002'],
+        6: ['066']
     }
 
 
@@ -175,7 +175,7 @@ def test_radixsort() -> None:
 
 
 # --------------------------------------------------
-def mysort(vals: List[str]) -> List[str]:
+def mysort(vals: List[int]) -> List[int]:
     """ An inefficient sorter """
 
     for i in range(0, len(vals) - 1):
