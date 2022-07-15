@@ -107,7 +107,7 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
 def find_longest(nums: List[int]) -> int:
     """ Find longest number position in a list """
 
-    return max(map(num_places, nums))
+    return num_places(max(nums))
 
 
 # --------------------------------------------------
