@@ -13,6 +13,8 @@ import sys
 from collections import defaultdict
 from typing import Dict, List, NamedTuple
 
+GroupDict = Dict[int, List[int]]
+
 
 class Args(NamedTuple):
     """ Command-line arguments """
@@ -92,26 +94,51 @@ def radixsort(vals: List[int], debug: bool = False) -> List[int]:
         groups = group(r, strs)
         warn(f'{groups}')
 
-        # Create a new list with the values of the sorted buckets
-        tmp = []
-        for key in mysort(list(groups.keys())):
-            tmp.extend(groups[key])
-
-        strs = tmp
+        # Overwrite list with sorted groups
+        strs = sort_groups(groups)
 
     # Turn values back to integers
     return list(map(int, strs))
 
 
 # --------------------------------------------------
+def sort_groups(groups: GroupDict) -> List[str]:
+    """ Create a new list with the values of the sorted buckets """
+
+    tmp = []
+    for key in mysort(list(groups.keys())):
+        tmp.extend(groups[key])
+
+    return tmp
+
+
+# --------------------------------------------------
+def test_sort_groups() -> None:
+    """ Test sort_groups """
+
+    given = {
+        1: ['170'],
+        0: ['045', '075', '090', '002', '002', '066'],
+        8: ['802']
+    }
+
+    assert sort_groups(given) == [
+        '045', '075', '090', '002', '002', '066', '170', '802'
+    ]
+
+
+# --------------------------------------------------
 def pad(vals: List[int]) -> List[str]:
     """ Turn list of ints into left-padded strings """
 
-    # Convert values to strings to find the longest
-    longest = max(map(len, list(map(str, vals))))
+    # Convert values to strings
+    strs = list(map(str, vals))
+
+    # Find the longest
+    longest = max(map(len, strs))
 
     # Format the string versions left-padded with zeros
-    return list(map(lambda v: f'{v:0{longest}d}', vals))
+    return list(map(lambda v: v.zfill(longest), strs))
 
 
 # --------------------------------------------------
@@ -128,7 +155,7 @@ def test_pad() -> None:
 
 
 # --------------------------------------------------
-def group(pos: int, vals: List[str]) -> Dict[int, List[str]]:
+def group(pos: int, vals: List[str]) -> GroupDict:
     """ Group values by chars at a position """
 
     groups = defaultdict(list)
